@@ -45,7 +45,7 @@ jobs:
             echo 'Fixture guard accepted an ordinary networked process'
             exit 1
           fi
-          rg -q 'Network isolation missing' "$RUNNER_TEMP/isolation-gate.log"
+          grep -Fq -- 'Network isolation missing' "$RUNNER_TEMP/isolation-gate.log"
       - name: Native contracts without network access
         run: sudo --preserve-env=MATOMO_ROOT,SPEO_TEST_OUTPUT env SPEO_TEST_ISOLATED=1 unshare --net -- "$(command -v php)" tests/run.php
       - name: Verify release contents
