@@ -1,0 +1,307 @@
+<?php
+
+/**
+ * Matomo - free/libre analytics platform
+ *
+ * @link    https://matomo.org
+ * @license https://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
+ */
+
+namespace Piwik\Plugins\SpeoReportPerformance;
+
+use Piwik\DataTable;
+use Piwik\DataTable\Row;
+use Piwik\Plugin\ReportsProvider;
+
+/**
+ * GPL-3.0-or-later adaptation of Matomo 5.14.2 core/API/DataTableManipulator/Flattener.php.
+ * Matomo contributors retain copyright in the original algorithm.
+ * Own change: cache report definitions and dimensions per request/depth.
+ *
+ * This class is responsible for flattening data tables.
+ *
+ * It loads subtables and combines them into a single table by concatenating the labels.
+ * This manipulator is triggered by using flat=1 in the API request.
+ */
+class LinearFlattener
+{
+    public function __construct(private string $apiModule, private string $apiMethod, private array $request)
+    {
+    }
+    private $includeAggregateRows = false;
+
+    /**
+     * If the flattener is used after calling this method, aggregate rows will
+     * be included in the result. This can be useful when they contain data that
+     * the leafs don't have (e.g. conversion stats in some cases).
+     */
+    public function includeAggregateRows()
+    {
+        $this->includeAggregateRows = true;
+    }
+
+    /**
+     * Separator for building recursive labels (or paths)
+     * @var string
+     */
+    public $recursiveLabelSeparator = '';
+
+    /**
+     * Defines if dimensions should be added as additional columns if there are more than one
+     * @var bool
+     */
+    public $showDimensions = false;
+
+    /**
+     * @param  DataTable $dataTable
+     * @param string $recursiveLabelSeparator
+     * @return DataTable|DataTable\Map
+     */
+    public function flatten($dataTable, $recursiveLabelSeparator, bool $showDimensions)
+    {
+        $this->recursiveLabelSeparator = $recursiveLabelSeparator;
+        $this->showDimensions = $showDimensions;
+
+        if (!$dataTable instanceof DataTable) {
+            throw new \UnexpectedValueException('Single table required');
+        }
+        return $this->manipulateDataTable($dataTable);
+    }
+
+    /**
+     * Template method called from self::manipulate.
+     * Flatten each data table.
+     *
+     * @param DataTable $dataTable
+     * @return DataTable
+     */
+    protected function manipulateDataTable($dataTable)
+    {
+        $newDataTable = $dataTable->getEmptyClone($keepFilters = true);
+        if ($dataTable->getTotalsRow()) {
+            $newDataTable->setTotalsRow($dataTable->getTotalsRow());
+        }
+
+        // this recursive filter will be applied to subtables
+        $dataTable->filter('ReplaceSummaryRowLabel');
+        $dataTable->filter('ReplaceColumnNames');
+
+        $report        = $this->rootReport();
+        if (!empty($report)) {
+            $dimension = $report->getDimension();
+        }
+
+        $dimensionName = !empty($dimension) ? str_replace('.', '_', $dimension->getId()) : 'label1';
+
+        $this->flattenDataTableInto($dataTable, $newDataTable, $level = 1, $dimensionName);
+
+        $dimensions = $newDataTable->getMetadata('dimensions');
+        $hasMultipleDimensions = is_array($dimensions) && count($dimensions) > 1;
+
+        if ($this->showDimensions && $hasMultipleDimensions) {
+            $newDataTable->filter(function ($dataTable) use ($dimensions) {
+                /** @var DataTable $dataTable */
+                $rows = $dataTable->getRows();
+                foreach ($rows as $row) {
+                    foreach ($dimensions as $dimension) {
+                        $row->setColumn($dimension, $row->getMetadata($dimension));
+                    }
+                }
+            });
+        }
+
+        return $newDataTable;
+    }
+
+    /**
+     * @param DataTable $dataTable
+     * @param DataTable $newDataTable
+     * @param int $level
+     * @param string $dimensionName
+     * @param string $prefix
+     * @param string|false $logo
+     */
+    protected function flattenDataTableInto($dataTable, $newDataTable, $level, $dimensionName, $prefix = '', $logo = false)
+    {
+        foreach ($dataTable->getRows() as $rowId => $row) {
+            $this->flattenRow($row, $rowId, $newDataTable, $level, $dimensionName, $prefix, $logo);
+        }
+    }
+
+    /**
+     * @param int|string $rowId
+     * @param int $level
+     * @param string $dimensionName
+     * @param string $labelPrefix
+     * @param string|false $parentLogo
+     */
+    private function flattenRow(
+        Row $row,
+        $rowId,
+        DataTable $dataTable,
+        $level,
+        $dimensionName,
+        $labelPrefix = '',
+        $parentLogo = false
+    ) {
+        $dimensions = $dataTable->getMetadata('dimensions');
+
+        if (empty($dimensions)) {
+            $dimensions = [];
+        }
+
+        if (!in_array($dimensionName, $dimensions)) {
+            $dimensions[] = $dimensionName;
+        }
+
+        $dataTable->setMetadata('dimensions', $dimensions);
+
+        $origLabel = $label = $row->getColumn('label');
+
+        if ($label !== false) {
+            $origLabel = $label = trim($label);
+
+            if ($this->recursiveLabelSeparator == '/') {
+                if (substr($label, 0, 1) == '/' && substr($labelPrefix, -1) == '/') {
+                    $origLabel = $label = substr($label, 1);
+                } elseif ($rowId === DataTable::ID_SUMMARY_ROW && $labelPrefix && $label != DataTable::LABEL_SUMMARY_ROW) {
+                    $label = ' - ' . $label;
+                }
+            }
+
+            if ($rowId === DataTable::ID_SUMMARY_ROW) {
+                if ($row->getMetadata('url')) {
+                    // remove url metadata for flattened summary rows
+                    $row->deleteMetadata('url');
+                }
+                $row->setMetadata('is_summary', true);
+            }
+
+            $label = $labelPrefix . $label;
+            $row->setColumn('label', $label);
+
+            if ($row->getMetadata($dimensionName)) {
+                if ($rowId === DataTable::ID_SUMMARY_ROW && $this->recursiveLabelSeparator == '/') {
+                    $origLabel = $row->getMetadata($dimensionName) . $this->recursiveLabelSeparator . ' - ' . $origLabel;
+                } else {
+                    $origLabel = $row->getMetadata($dimensionName) . $this->recursiveLabelSeparator . $origLabel;
+                }
+            }
+
+            $row->setMetadata($dimensionName, $origLabel);
+        }
+
+        $logo = $row->getMetadata('logo');
+        if ($logo === false && $parentLogo !== false) {
+            $logo = $parentLogo;
+            $row->setMetadata('logo', $logo);
+        }
+
+        /** @var DataTable $subTable */
+        $subTable = $row->getSubtable();
+
+        if ($subTable) {
+            $subTable->applyQueuedFilters();
+            $row->deleteMetadata('idsubdatatable_in_db');
+        } else {
+            // The native API supplied the complete expanded tree. Loading
+            // subtables through a private core manipulator is unnecessary.
+            if ($row->getIdSubDataTable() !== null) {
+                throw new \UnexpectedValueException('Unloaded subtable');
+            }
+            $subTable = null;
+        }
+
+        $row->removeSubtable();
+
+        if ($subTable === null) {
+            if ($this->includeAggregateRows) {
+                $row->setMetadata('is_aggregate', 0);
+            }
+            $dataTable->addRow($row);
+        } else {
+            if ($this->includeAggregateRows) {
+                $row->setMetadata('is_aggregate', 1);
+                $dataTable->addRow($row);
+            }
+            $prefix = $label . $this->recursiveLabelSeparator;
+
+            $subDimension = $this->subDimensionAtLevel($level);
+
+            $subDimensionName = $subDimension ? str_replace('.', '_', $subDimension->getId()) : 'label' . (substr_count($prefix, $this->recursiveLabelSeparator) + 1);
+
+            if ($origLabel !== false) {
+                foreach ($subTable->getRows() as $subRow) {
+                    foreach ($row->getMetadata() as $name => $value) {
+                        // do not set 'segment' parameter if there is a segmentValue on the row, since that will prevent the segmentValue
+                        // from being used in DataTablePostProcessor
+                        if ($name == 'segment' && $subRow->getMetadata('segmentValue') !== false) {
+                            continue;
+                        }
+
+                        if ($subRow->getMetadata($name) === false) {
+                            $subRow->setMetadata($name, $value);
+                        }
+                    }
+
+                    $subRow->setMetadata($dimensionName, $origLabel);
+                }
+            }
+
+            $this->flattenDataTableInto($subTable, $dataTable, $level + 1, $subDimensionName, $prefix, $logo);
+        }
+    }
+
+    /**
+     * Remove the flat & filter_pattern parameters from the subtable request
+     *
+     * @param array $request
+     * @return array
+     */
+    protected function manipulateSubtableRequest($request)
+    {
+        unset($request['flat']);
+
+        // don't apply the search pattern while subtables are loaded, otherwise rows are filtered on
+        // their child label before the parent label parts are combined into the final flattened label.
+        // that would drop rows whose match only appears in a parent label. instead we let the pattern
+        // run once on the flattened table (via the generic filters applied after flattening).
+        unset($request['filter_pattern']);
+
+        return $request;
+    }
+
+    /** Request-local report/dimension cache. No global registry or core class is replaced. */
+    private $cachedRootReport;
+    private $cachedFallbackReport;
+    private array $cachedDimensions = [];
+
+    private function rootReport()
+    {
+        if ($this->cachedRootReport === null) {
+            $this->cachedRootReport = ReportsProvider::factory($this->apiModule, $this->apiMethod);
+        }
+        return $this->cachedRootReport;
+    }
+
+    private function subDimensionAtLevel(int $level)
+    {
+        if (array_key_exists($level, $this->cachedDimensions)) {
+            return $this->cachedDimensions[$level];
+        }
+        $report = $this->rootReport();
+        $dimension = $level > 1
+            ? $report->getNthLevelTableDimension($level)
+            : $report->getSubtableDimension();
+        if (empty($dimension)) {
+            if ($this->cachedFallbackReport === null) {
+                $this->cachedFallbackReport = ReportsProvider::factory(
+                    $this->apiModule,
+                    $report->getActionToLoadSubTables() ?: $this->apiMethod
+                );
+            }
+            $dimension = $this->cachedFallbackReport->getDimension();
+        }
+        return $this->cachedDimensions[$level] = $dimension;
+    }
+}

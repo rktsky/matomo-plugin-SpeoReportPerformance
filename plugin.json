@@ -1,0 +1,34 @@
+{
+  "name": "SpeoReportPerformance",
+  "description": "Caches eligible flat monthly page URL reports while retaining Matomo permissions and report output.",
+  "version": "1.2.2",
+  "license": "GPL-3.0+",
+  "keywords": [
+    "performance",
+    "cache",
+    "page-reports"
+  ],
+  "homepage": "https://github.com/acki/matomo-plugin-SpeoReportPerformance",
+  "authors": [
+    {
+      "name": "Rocketsky",
+      "homepage": "https://www.rocketsky.ch/"
+    }
+  ],
+  "require": {
+    "matomo": ">=5.14.2,<6.0.0",
+    "php": ">=8.4.0"
+  },
+  "wordpress-compatible": false,
+  "onpremise-compatible": true,
+  "category": "database",
+  "archive": {
+    "exclude": [
+      "/tools",
+      "/composer.json",
+      "/composer.lock",
+      "/phpcs.xml.dist",
+      "/phpstan.neon"
+    ]
+  }
+}

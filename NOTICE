@@ -1,0 +1,15 @@
+SpeoReportPerformance
+Copyright (c) 2026 Rocketsky. Licensed GPL-3.0-or-later.
+
+LinearFlattener.php is an attributed adaptation of:
+Matomo 5.14.2 core/API/DataTableManipulator/Flattener.php
+https://github.com/matomo-org/matomo/blob/5.14.2/core/API/DataTableManipulator/Flattener.php
+Original Matomo contributors retain their copyright.
+Original project: https://matomo.org/
+Original license: GNU General Public License, version 3 or later.
+
+The plugin adaptation changes report/dimension lookup reuse. The native
+traversal, metadata inheritance, slash/summary handling and filter ordering
+are retained to make synthetic equivalence review practical.
+No Matomo core/vendor file or runtime class registry is changed.
+The applicable GPL license text is included in LICENSE.

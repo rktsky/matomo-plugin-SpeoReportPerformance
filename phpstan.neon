@@ -1,0 +1,18 @@
+parameters:
+    level: 1
+    paths:
+        - .
+        - tests/bootstrap.php
+        - tests/run.php
+        - tests/lint.php
+    excludePaths:
+        analyse:
+            - tests/Fixtures
+            - autoload-for-private-tests.php (?)
+            - vendor (?)
+            - dist (?)
+            - .matomo (?)
+            - lab (?)
+    bootstrapFiles:
+        - tests/analysis-bootstrap.php
+    tmpDir: .cache/phpstan
