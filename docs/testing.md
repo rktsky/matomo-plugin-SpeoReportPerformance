@@ -37,7 +37,7 @@ The fixtures are contract tests rather than end-to-end dashboard tests. Access/d
 
 ## Maintained compatibility checks
 
-Validation on 7 November 2026 exercised all thirteen fixture processes in both development layouts with original Matomo 5.14.2 and PHP 8.4.27. Current GitHub executions and logs are available in the <a href="https://github.com/acki/matomo-plugin-SpeoReportPerformance/actions/workflows/quality.yml" target="_blank" rel="noopener noreferrer">Plugin quality workflow</a>. Its matrix results must be read independently of this local preparation baseline.
+Validation on 7 November 2026 exercised all thirteen fixture processes in both development layouts with original Matomo 5.14.2 and PHP 8.4.27. Current GitHub executions and logs are available in the <a href="https://github.com/rktsky/matomo-plugin-SpeoReportPerformance/actions/workflows/quality.yml" target="_blank" rel="noopener noreferrer">Plugin quality workflow</a>. Its matrix results must be read independently of this local preparation baseline.
 
 GitHub Actions downloads upstream Matomo unchanged and runs the contracts with PHP 8.4 and 8.5, both on the minimum release 5.14.2 and the newest stable 5.x release discovered from the <a href="https://builds.matomo.org/" target="_blank" rel="noopener noreferrer">official build index</a>. Weekly runs catch later Matomo minor/patch releases without exact-version pins. When those two selections resolve to the same release, the matrix still makes that overlap explicit; it does not imply that two releases were exercised. A future major release needs its own compatibility review.
 

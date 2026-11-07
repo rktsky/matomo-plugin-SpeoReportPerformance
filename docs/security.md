@@ -14,4 +14,4 @@ The plugin sends no telemetry and does not call an external reporting service. I
 
 Contact the maintainer privately through the current Rocketsky contact channel linked from <a href="https://www.rocketsky.ch/" target="_blank" rel="noopener noreferrer">the company website</a>. Provide the plugin, Matomo and PHP versions, a minimal synthetic reproduction and the affected integration boundary. Do not attach real reports, tokens, Redis contents or credentials to a public issue.
 
-Use the <a href="https://github.com/acki/matomo-plugin-SpeoReportPerformance/issues" target="_blank" rel="noopener noreferrer">public issue tracker</a> for non-sensitive bugs only. Security concerns and identifying report data belong in the private maintainer contact channel above.
+Use the <a href="https://github.com/rktsky/matomo-plugin-SpeoReportPerformance/issues" target="_blank" rel="noopener noreferrer">public issue tracker</a> for non-sensitive bugs only. Security concerns and identifying report data belong in the private maintainer contact channel above.

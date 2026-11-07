@@ -1,6 +1,6 @@
 # SpeoReportPerformance
 
-<a href="https://github.com/acki/matomo-plugin-SpeoReportPerformance/actions/workflows/quality.yml" target="_blank" rel="noopener noreferrer"><img src="https://github.com/acki/matomo-plugin-SpeoReportPerformance/actions/workflows/quality.yml/badge.svg" alt="Plugin quality workflow"></a>
+<a href="https://github.com/rktsky/matomo-plugin-SpeoReportPerformance/actions/workflows/quality.yml" target="_blank" rel="noopener noreferrer"><img src="https://github.com/rktsky/matomo-plugin-SpeoReportPerformance/actions/workflows/quality.yml/badge.svg" alt="Plugin quality workflow"></a>
 
 ## Description
 
@@ -37,7 +37,7 @@ The first eligible request for a new archive revision builds the base. Optional 
 
 ## Source and support
 
-The public source repository is <a href="https://github.com/acki/matomo-plugin-SpeoReportPerformance" target="_blank" rel="noopener noreferrer">acki/matomo-plugin-SpeoReportPerformance</a>. Report reproducible bugs with synthetic data in the <a href="https://github.com/acki/matomo-plugin-SpeoReportPerformance/issues" target="_blank" rel="noopener noreferrer">issue tracker</a>. Follow [security guidance](docs/security.md) for private reports.
+The public source repository is <a href="https://github.com/rktsky/matomo-plugin-SpeoReportPerformance" target="_blank" rel="noopener noreferrer">rktsky/matomo-plugin-SpeoReportPerformance</a>. Report reproducible bugs with synthetic data in the <a href="https://github.com/rktsky/matomo-plugin-SpeoReportPerformance/issues" target="_blank" rel="noopener noreferrer">issue tracker</a>. Follow [security guidance](docs/security.md) for private reports.
 
 ## License
 
