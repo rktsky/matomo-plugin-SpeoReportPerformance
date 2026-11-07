@@ -52,6 +52,8 @@ jobs:
         run: |
           python3 tools/build-release.py
           python3 tools/validate-release.py
+          python3 tools/test-marketplace.py
+          python3 tools/validate-marketplace.py
       - name: Make generated test results readable by the artifact uploader
         if: always()
         run: |

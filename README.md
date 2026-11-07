@@ -1,6 +1,6 @@
 # SpeoReportPerformance
 
-<a href="https://github.com/rktsky/matomo-plugin-SpeoReportPerformance/actions/workflows/quality.yml" target="_blank" rel="noopener noreferrer"><img src="https://github.com/rktsky/matomo-plugin-SpeoReportPerformance/actions/workflows/quality.yml/badge.svg" alt="Plugin quality workflow"></a>
+<a href="https://github.com/rktsky/matomo-plugin-SpeoReportPerformance/actions/workflows/quality.yml" target="_blank" rel="noopener noreferrer">Plugin quality workflow</a>
 
 ## Description
 
@@ -9,6 +9,8 @@ SpeoReportPerformance reduces repeated work when opening large, flat monthly pag
 The accelerated path applies to a single-site `Actions.getPageUrls` request with `period=month`, `flat=1`, no segment and a requested limit of 1–1000 rows. Other reports, unsupported request shapes and full exports use Matomo's normal processing. The plugin does not shorten a report to meet a time target.
 
 Access is checked on every request. Cache entries follow the archive's publication and invalidation markers; user-specific pages are separated by login. No Matomo core or vendor file is changed.
+
+The plugin is used in production at Speo. It requires Matomo On-Premise 5.14.2 or later within Matomo 5 and PHP 8.4 or later. Redis can share cached work between PHP processes through Matomo's existing cache backend.
 
 ## Requirements
 
@@ -28,6 +30,7 @@ The first eligible request for a new archive revision builds the base. Optional 
 ## Documentation
 
 - [Installation and removal](docs/installation.md)
+- [Frequently asked questions](docs/faq.md)
 - [Configuration and diagnostics](docs/configuration.md)
 - [Architecture and cache lifecycle](docs/architecture.md)
 - [Compatibility](docs/compatibility.md)
@@ -43,7 +46,7 @@ The public source repository is <a href="https://github.com/rktsky/matomo-plugin
 
 GNU General Public License, version 3 or later. See [LICENSE](LICENSE) and the upstream attribution in [NOTICE](NOTICE).
 
-Created by <a href="https://www.rocketsky.ch/" target="_blank" rel="noopener noreferrer">Rocketsky</a>.
+Created by <a href="https://www.rocketsky.ch/" target="_blank" rel="noopener noreferrer">Rocketsky GmbH</a>.
 
 ## Development
 

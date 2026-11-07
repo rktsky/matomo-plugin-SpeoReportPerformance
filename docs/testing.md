@@ -43,4 +43,13 @@ GitHub Actions downloads upstream Matomo unchanged and runs the contracts with P
 
 PHPStan checks all distributed runtime classes at level 1, including undefined symbols, unknown methods and possibly undefined variables, with upstream types autoloaded from `MATOMO_ROOT`. There is no blanket error ignore or generated baseline. PSR-12 errors are enforced for runtime and developer tooling; its soft line-length warnings remain advisory. Executable contract fixture scripts retain their compact test layout. `composer check` combines lint, style, analysis and the isolated contract suite. CI also validates the release archive and source export.
 
+The offline Marketplace check projects the public Git tree through Matomo's documented default exclusions and the manifest's `archive.exclude`, then requires the same payload as the release allowlist. It also checks README image/script references and explicit sponsored-link markers; unmarked sponsorship still needs editorial review. Six packaging regression tests cover exclusion mistakes, required-file omissions and README policy. Run these checks without Matomo, PHP or network access:
+
+```sh
+python3 tools/build-release.py
+python3 tools/validate-release.py
+python3 tools/test-marketplace.py
+python3 tools/validate-marketplace.py
+```
+
 The native fixture approach is independent of Matomo's own integration-test database setup. See the <a href="https://developer.matomo.org/guides/tests-php" target="_blank" rel="noopener noreferrer">Matomo PHP testing guide</a> for upstream test categories and infrastructure.

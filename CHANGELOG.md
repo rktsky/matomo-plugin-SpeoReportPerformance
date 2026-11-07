@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.3 — 2026-11-07
+
+- Prepare Marketplace metadata, support links and an English FAQ for the public repository under rktsky.
+- Replace the external README badge with a workflow link and record production use at Speo.
+- Keep the Rocketsky GmbH sponsorship acknowledgement in the repository only, outside the Marketplace listing and installable package.
+- Verify that Marketplace archive exclusions produce the same reviewed payload as the release allowlist.
+
 ## 1.2.2 — 2026-11-07
 
 - Read the documented flat Actions archiving configuration directly instead of using the internal Actions helper.

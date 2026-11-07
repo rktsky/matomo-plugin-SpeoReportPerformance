@@ -11,7 +11,9 @@ DEVELOPMENT_FILES = (
     ".github/workflows/quality.yml", "tests/bootstrap.php",
     "tests/run.php", "tests/lint.php", "tests/analysis-bootstrap.php",
     "tests/download-matomo.py", "tools/build-release.py", "tools/validate-release.py",
+    "tools/validate-marketplace.py", "tools/test-marketplace.py", "tools/marketplace_package.py",
     "tools/release_package.py", "tools/release-files.json", "tools/export_development.py",
+    "MARKETPLACE.md", "SPONSORS.md",
 )
 FIXTURES = (
     "native-api-source-contract.php", "ui-numeric-page-cache.php", "ui-base-preloader.php",
