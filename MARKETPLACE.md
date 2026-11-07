@@ -1,20 +1,29 @@
-# Marketplace publication preparation
+# Marketplace publication
 
-Candidate: **SpeoReportPerformance 1.2.3**. Review date: **7 November 2026**.
+Submitted version: **SpeoReportPerformance 1.2.3**. Review and submission date: **7 November 2026**.
 
-The candidate is prepared for submission, not approved or listed by Matomo. No Marketplace submission is triggered by this document or by the local package build. The repository's webhook settings contained no configured repository webhook when inspected on the review date.
+Version 1.2.3 was submitted through the documented GitHub webhook workflow at **11:40 CET**. Matomo acknowledged the tag-push delivery with **HTTP 204**. This confirms successful HTTP delivery, not manual approval; no public listing was visible at the submission check.
+
+## Submission record
+
+- The repository webhook `708562775` is active for push events, using JSON and HTTPS certificate verification.
+- GitHub released `v1.2.3` from reviewed commit `060e245e7d01578196936a1dbb42efd44b81ffec` after the webhook was activated.
+- Delivery `a4c9f4e6-da97-11f1-88cb-209d94c8f367` carried `refs/tags/v1.2.3` and that exact commit to `https://plugins.matomo.org/postreceive-hook`. Matomo returned HTTP 204 at 11:40:27 CET.
+- The published ZIP's SHA-256 remains `4350653384600fa2a022ab3519e7f086485273990bcc88c82b265669be45c001`; the release assets and tag have not been replaced.
+
+The reviewed release passed <a href="https://github.com/rktsky/matomo-plugin-SpeoReportPerformance/actions/runs/42363906822" target="_blank" rel="noopener noreferrer">all four CI matrix jobs</a>. The following preparation audit describes the submitted payload.
 
 ## Source and package
 
 - Repository: <a href="https://github.com/rktsky/matomo-plugin-SpeoReportPerformance" target="_blank" rel="noopener noreferrer">rktsky/matomo-plugin-SpeoReportPerformance</a>.
-- Candidate tag when submitting: `v1.2.3`, created from the reviewed and passing candidate commit. The manifest version is `1.2.3`.
+- Published tag: `v1.2.3`, created from the reviewed and passing commit. The manifest version is `1.2.3`.
 - Build: `python3 tools/build-release.py`.
 - Verify: `python3 tools/validate-release.py` and `python3 tools/validate-marketplace.py`.
 - Installable output: `dist/SpeoReportPerformance-1.2.3.zip` and its `.zip.sha256` sidecar.
 
 The build also produces a standalone source export. The Marketplace builds from the GitHub tag rather than from the attached ZIP. Its documented default exclusions and `plugin.json`'s `archive.exclude` must yield exactly the reviewed release allowlist. The additional validator checks that parity, including repository-only files. Original Matomo packages are not modified.
 
-The published `v1.2.2` tag and assets remain unchanged. They predate the repository transfer and still contain the old homepage URLs. Do not move that tag or replace its assets to publish this candidate.
+The published `v1.2.2` tag and assets remain unchanged. They predate the repository transfer and still contain the old homepage URLs. Published tags and assets remain immutable.
 
 ## Audit outcome
 
@@ -32,7 +41,7 @@ The actual Matomo 5.14.2 dependency checker was used to check the declared `>=5.
 
 `SPONSORS.md` records the Rocketsky GmbH sponsorship with its website link. It stays in GitHub and the source export and is excluded from installable archives. Sponsored links are absent from the README and Marketplace-rendered text. Production use at Speo is stated in the Description. No customer report screenshot or private operational fixture is published; screenshots are optional for this plugin, which retains Matomo's native report UI.
 
-## Submission steps, when publication is requested
+## Publication workflow
 
 These steps follow the <a href="https://developer.matomo.org/guides/distributing-your-plugin" target="_blank" rel="noopener noreferrer">official Matomo publishing guide</a>:
 
@@ -41,6 +50,6 @@ These steps follow the <a href="https://developer.matomo.org/guides/distributing
 3. Create the `v1.2.3` tag/release from that reviewed commit after the webhook is active. Do not tag before configuring the hook and assume it will be discovered later.
 4. Check the webhook delivery and Matomo's response. A tag starts the first-plugin review; it does not guarantee acceptance or immediate listing.
 
-Tag names may have a `v` prefix: the Marketplace reads the version from `plugin.json`. No separate Marketplace developer account is required by the documented workflow. No registration, submission message, active hook delivery or new release tag is part of this preparation.
+Tag names may have a `v` prefix: the Marketplace reads the version from `plugin.json`. No separate Marketplace developer account is required by the documented workflow. Local builds do not notify Matomo; the active webhook and a new release tag are the submission mechanism.
 
 Matomo's manual review, final name availability and acceptance remain external decisions. If publication is rejected, retain the response and address its specific findings before a new version is submitted.
