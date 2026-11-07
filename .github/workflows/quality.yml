@@ -1,0 +1,67 @@
+name: Plugin quality
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 5 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    name: PHP ${{ matrix.php }} / Matomo ${{ matrix.matomo }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.4', '8.5']
+        matomo: ['5.14.2', 'latest5']
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, curl, dom, json, zlib
+          coverage: none
+          tools: composer:v2
+      - name: Install developer tools
+        run: composer install --no-interaction --prefer-dist
+      - name: Fetch original Matomo distribution
+        run: |
+          python3 tests/download-matomo.py '${{ matrix.matomo }}' "$RUNNER_TEMP/matomo-fixture"
+          echo "MATOMO_ROOT=$RUNNER_TEMP/matomo-fixture/matomo" >> "$GITHUB_ENV"
+          echo "SPEO_TEST_OUTPUT=$RUNNER_TEMP/speo-results" >> "$GITHUB_ENV"
+      - run: composer validate --strict
+      - run: composer lint
+      - run: composer style
+      - run: composer analyse
+      - name: Require operating-system isolation
+        run: |
+          if SPEO_TEST_ISOLATED=1 php tests/run.php > "$RUNNER_TEMP/isolation-gate.log" 2>&1; then
+            echo 'Fixture guard accepted an ordinary networked process'
+            exit 1
+          fi
+          rg -q 'Network isolation missing' "$RUNNER_TEMP/isolation-gate.log"
+      - name: Native contracts without network access
+        run: sudo --preserve-env=MATOMO_ROOT,SPEO_TEST_OUTPUT env SPEO_TEST_ISOLATED=1 unshare --net -- "$(command -v php)" tests/run.php
+      - name: Verify release contents
+        run: |
+          python3 tools/build-release.py
+          python3 tools/validate-release.py
+      - name: Make generated test results readable by the artifact uploader
+        if: always()
+        run: |
+          if [ -d "${SPEO_TEST_OUTPUT:-}" ]; then
+            sudo chown -R -- "$(id -u):$(id -g)" "$SPEO_TEST_OUTPUT"
+          fi
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: contracts-php${{ matrix.php }}-matomo${{ matrix.matomo }}
+          path: |
+            ${{ runner.temp }}/speo-results
+            ${{ runner.temp }}/matomo-fixture/distribution.txt
