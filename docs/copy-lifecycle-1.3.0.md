@@ -61,13 +61,4 @@ The actual production transition still requires the separate concrete user's SQL
 
 ## Frozen final review artifacts
 
-The actual final suites were run after materializing these exact ZIP bytes into the private original installation:
-
-| Package | Files | SHA-256 |
-| --- | ---: | --- |
-| SpeoControl0.6.6 | 70 | `c2694fc91237eef0f8e308ee638ef2cc9e90fea8bcf7b427c537876749ccc042` |
-| SpeoReportPerformance1.3.0 | 50 | `063361aef26da1762d0ca7f9a7a72d03f12edc4c8c2efbd03f1a6403fd0d9c7e` |
-
-All packaged files match the actually exercised owned trees. The final49/84/12 native suites completed successfully in9.820/12.126/3.719seconds respectively on this isolated fixture; these are fixture execution times, not production throughput benchmarks. The independent baseline command passed8 native checks. All13 storage-free/native-class Performance regression fixtures passed; the300 pure/SQLite Control checks are explicitly separate from InnoDB/native-engine proof. Changed Performance sources pass PSR-12 without errors and the native PHP8.4.27 parser accepts both distributed packages. Package/Marketplace validators and six package-boundary tests pass.
-
-The [sanitised final receipt](https://github.com/rktsky/matomoplugin.speocontrol/blob/review/active-erasure-0.6.6/docs/evidence/report-copy-erasure-final-20261109.json) includes actual package/source equality, original11,887-file equality and hashes of private native logs. No copied customer database, credential, raw report or private inventory is in the repository. These candidates are uninstalled on production; current installed0.6.5 and native global2day state remain unchanged.
+The final source/package receipt and native log hashes are recorded outside this distributed package in the [Control evidence record](https://github.com/rktsky/matomoplugin.speocontrol/blob/review/active-erasure-0.6.6/docs/evidence/report-copy-erasure-final-20261109.json). Keeping the checksum outside the packaged notes avoids a self-referential archive hash. Both packages are compared against the actually exercised owned trees and original native files; no productive installation is inferred from that comparison.
