@@ -39,7 +39,7 @@ final class ReportCache
             if ($payload === null || !$context->isCurrent()) {
                 return false;
             }
-            return (bool) Cache::getLazyCache()->save($context->getKey(), $payload, Configuration::get()->cacheTtl());
+            return (bool) CopyLifecycle::publish($context, $context->getKey(), $payload, Configuration::get()->cacheTtl());
         } catch (\Throwable $error) {
             return false;
         }
@@ -79,7 +79,7 @@ final class ReportCache
                 try {
                     $payload = FlatTableSnapshot::encodeFrozen($frozen);
                     if ($payload !== null && $context->isCurrent()) {
-                        Cache::getLazyCache()->save($context->getBaseKey(), $payload, Configuration::get()->cacheTtl());
+                        CopyLifecycle::publish($context, $context->getBaseKey(), $payload, Configuration::get()->cacheTtl());
                     }
                 } catch (\Throwable $error) {
                     Diagnostics::record('cache_store_failed');

@@ -41,7 +41,7 @@ final class HotReportWarmup
             ksort($request, SORT_STRING);
             $target = ['request' => $request, 'language' => $language];
             $id = hash('sha256', json_encode($target, JSON_THROW_ON_ERROR));
-            $recorded = self::locked(static function (string $dir) use ($target, $id): bool {
+            $recorded = CopyLifecycle::withPublication($context->getNativeId(), static fn(): bool => self::locked(static function (string $dir) use ($target, $id): bool {
                 $targets = self::read($dir);
                 if ($targets === null) {
                     return false;
@@ -53,7 +53,7 @@ final class HotReportWarmup
                 $targets[$id] = $target + ['lastSeen' => $now];
                 uasort($targets, static fn(array $a, array $b): int => $b['lastSeen'] <=> $a['lastSeen']);
                 return self::write($dir, array_slice($targets, 0, Configuration::get()->warmupMaxTargets(), true));
-            }, false);
+            }, false));
             Diagnostics::record($recorded ? 'warmup_hint_recorded' : 'warmup_hint_skipped');
             return $recorded;
         } catch (\Throwable $error) {
@@ -341,7 +341,7 @@ final class HotReportWarmup
         }
     }
 
-    private static function read(string $dir): ?array
+    private static function read(string $dir, bool $retainExpired = false): ?array
     {
         $path = $dir . '/hot-reports.json';
         if (!file_exists($path)) {
@@ -368,12 +368,42 @@ final class HotReportWarmup
             ) {
                 return self::invalidManifest();
             }
-            if ($target['lastSeen'] >= time() - Configuration::get()->warmupTargetMaxAge()) {
+            if ($retainExpired || $target['lastSeen'] >= time() - Configuration::get()->warmupTargetMaxAge()) {
                 $targets[$id] = $target;
             }
         }
         uasort($targets, static fn(array $a, array $b): int => $b['lastSeen'] <=> $a['lastSeen']);
-        return array_slice($targets, 0, Configuration::get()->warmupMaxTargets(), true);
+        return $retainExpired ? $targets : array_slice($targets, 0, Configuration::get()->warmupMaxTargets(), true);
+    }
+
+    /**
+     * Remove only one positively scoped property's neutral targets under the existing manifest lease.
+     * @param int $nativeId Exact property already sealed by the caller's own EX copy lifecycle.
+     * @return int Actual matching target count; unrelated targets, including expired ones, remain intact.
+     * @throws \RuntimeException For a busy, malformed or unconfirmed manifest instead of inventing absence.
+     * @since 1.3.0
+     */
+    public static function eraseProperty(int $nativeId): int
+    {
+        if ($nativeId < 1) {
+            throw new \InvalidArgumentException('positive_warmup_property_required');
+        }
+        $count = self::locked(static function (string $directory) use ($nativeId): int {
+            $targets = self::read($directory, true);
+            if ($targets === null) {
+                throw new \RuntimeException('warmup_erasure_manifest_invalid');
+            }
+            $remaining = array_filter($targets, static fn(array $target): bool => (int) $target['request']['idSite'] !== $nativeId);
+            $removed = count($targets) - count($remaining);
+            if ($removed > 0 && (!self::write($directory, $remaining) || self::read($directory, true) !== $remaining)) {
+                throw new \RuntimeException('warmup_erasure_write_unconfirmed');
+            }
+            return $removed;
+        }, null);
+        if (!is_int($count)) {
+            throw new \RuntimeException('warmup_erasure_manifest_unavailable');
+        }
+        return $count;
     }
 
     private static function invalidManifest(): ?array

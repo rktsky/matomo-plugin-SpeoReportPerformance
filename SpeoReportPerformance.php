@@ -33,7 +33,32 @@ class SpeoReportPerformance extends Plugin
             'Request.shouldDisablePostProcessing' => ['function' => 'preparePostProcessing', 'after' => true],
             'API.Request.intercept' => ['function' => 'readArchive', 'after' => true],
             'API.Request.dispatch.end' => ['function' => 'accelerate', 'after' => true],
+            'SpeoControl.reportCopies.readiness' => 'reportCopyReadiness',
+            'SpeoControl.reportCopies.erase' => 'eraseReportCopies',
         ];
+    }
+
+    /**
+     * Supply read-only actual own-copy coverage to the independent control operator.
+     * @param array $result Reference DTO created by the owned caller, never an HTTP input.
+     * @return void Missing legacy baseline remains explicitly unverified.
+     * @since 1.3.0
+     */
+    public function reportCopyReadiness(array &$result): void
+    {
+        $result = CopyLifecycle::readiness();
+    }
+
+    /**
+     * Evict only the caller's positively sealed physical property through native cache APIs.
+     * @param int $nativeId Original control-validated physical scope.
+     * @param array $result Reference receipt populated only after native absence readback.
+     * @return void Errors propagate to keep the control's completion journal open.
+     * @since 1.3.0
+     */
+    public function eraseReportCopies(int $nativeId, array &$result): void
+    {
+        $result = CopyLifecycle::erase($nativeId);
     }
 
     public function getLastDecision(): string
