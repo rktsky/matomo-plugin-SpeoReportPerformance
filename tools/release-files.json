@@ -37,7 +37,9 @@
     "UiRequestContext.php",
     "WarmupProcess.php",
     "config/config.php",
-    "plugin.json"
+    "plugin.json",
+    "CopyLifecycle.php",
+    "Commands/ReviewReportCopies.php"
   ],
   "documentation": [
     "CHANGELOG.md",
@@ -49,6 +51,7 @@
     "docs/index.md",
     "docs/installation.md",
     "docs/security.md",
-    "docs/testing.md"
+    "docs/testing.md",
+    "docs/copy-lifecycle-1.3.0.md"
   ]
 }

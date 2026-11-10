@@ -172,7 +172,7 @@ final class UiNumericPageCache
             }
             $payload = ProcessedTableSnapshot::encode($copy);
             if ($payload !== null && $state->context->isCurrent()) {
-                self::$lastDecision = Cache::getLazyCache()->save($state->key, $payload, Configuration::get()->cacheTtl())
+                self::$lastDecision = CopyLifecycle::publish($state->context, $state->key, $payload, Configuration::get()->cacheTtl())
                     ? 'ui-numeric-stored' : 'ui-numeric-store-declined';
             }
         } catch (\Throwable $error) {

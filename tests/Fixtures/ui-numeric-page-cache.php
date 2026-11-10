@@ -27,6 +27,14 @@ namespace Piwik\Plugin {
     }
 }
 namespace Piwik\Plugins\SpeoReportPerformance {
+    /** Explicit own publication double: these isolated filter fixtures do not bootstrap native storage. */
+    final class CopyLifecycle
+    {
+        public static function publish(RevisionContext $context, string $key, string $payload, int $ttl): bool
+        {
+            return \Piwik\Cache::getLazyCache()->save($key, $payload, $ttl);
+        }
+    }
     final class NativeSourceGuard
     {
         public static bool $pipeline = true;

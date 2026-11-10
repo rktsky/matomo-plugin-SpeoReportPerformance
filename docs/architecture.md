@@ -33,3 +33,7 @@ Warmup cannot remove every first-request cost. User-specific pagination and new 
 Public events, report APIs, configuration and DataTable extensions provide the integration points. The adapted flattening algorithm is kept in the plugin and attributed in the packaged `NOTICE`. Compatibility-sensitive access is isolated in small adapters and tested against the native Matomo pipeline. See [compatibility](compatibility.md) for the exact tested baseline and limits of Matomo's public API promise.
 
 No original Matomo class, vendor dependency or server package is patched. The plugin does not modify the runtime class registry, write archives or change the database schema.
+
+## Owned exact-property copy lifecycle1.3.0
+
+See [the actual source, native Redis and publication/erasure contract](copy-lifecycle-1.3.0.md). The optional snapshot pipeline remains declined with SpeoControl; it is not newly enabled by this integration. No production cleanup or activation is included in the native proof.

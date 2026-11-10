@@ -246,6 +246,16 @@ final class RevisionContext
     {
         return $this->root;
     }
+    /**
+     * Identify the exact native property for owned cache-copy indexing.
+     * @return int Original positive ID already checked by assertViewAccess().
+     * @since 1.3.0
+     */
+    public function getNativeId(): int
+    {
+        return $this->idSite;
+    }
+
     public function getTimings(): array
     {
         return $this->timings;

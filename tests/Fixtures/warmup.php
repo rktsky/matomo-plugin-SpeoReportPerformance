@@ -26,6 +26,11 @@ namespace Piwik\Plugins\SpeoReportPerformance {
             ++$GLOBALS['warmupFixtureFsyncCalls'];
             throw new \RuntimeException('Optional cache hints must never fsync');
         }
+        /** Explicit manifest-only own publication double; lifecycle is proved separately on original Redis. */
+        final class CopyLifecycle
+        {
+            public static function withPublication(int $nativeId, callable $publish): mixed { return $publish(); }
+        }
         final class NativeSourceGuard
         {
             public static bool $pipeline = true;
@@ -38,6 +43,7 @@ namespace Piwik\Plugins\SpeoReportPerformance {
             public static bool $decline = false;
             public static array $prepared = [];
             public function __construct(private array $request, private string $language = 'en') {}
+            public function getNativeId(): int { return (int) $this->request['idSite']; }
             public function getWarmRequest(): array { return $this->request; }
             public function getLanguage(): string { return $this->language; }
             public function getBaseKey(): string { return 'fixture-base-' . $this->request['idSite']; }
@@ -598,7 +604,7 @@ namespace {
     }
     $failed = count(array_filter($results, static fn($r) => $r['status'] !== 'pass'));
     $report = ['fixture' => 'warmup-' . $mode, 'network_namespace_isolated' => true, 'application_bootstrap' => false,
-        'database_or_customer_reports' => false, 'helper_source_sha256' => hash_file('sha256', SPEO_PLUGIN_ROOT . '/HotReportWarmup.php'),
+        'database_or_customer_reports' => false, 'copy_lifecycle_publication' => 'explicit own double; not lifecycle proof', 'helper_source_sha256' => hash_file('sha256', SPEO_PLUGIN_ROOT . '/HotReportWarmup.php'),
         'command_source_sha256' => hash_file('sha256', SPEO_PLUGIN_ROOT . '/Commands/WarmReports.php'),
         'checks' => count($results), 'passed' => count($results) - $failed, 'failed' => $failed, 'results' => $results];
     $json = json_encode($report, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n";

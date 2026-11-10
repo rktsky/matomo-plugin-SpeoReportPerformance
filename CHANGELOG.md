@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.0 — 2026-11-09
+
+- Fence report-snapshot and warmup publication through a private same-host lifecycle lease.
+- Index exact owned cache keys before publishing; erase only positively sealed native properties through original cache APIs.
+- Require a separately reviewed finite legacy-key baseline bound to the actual backend configuration.
+- Preserve the existing declined optional snapshot pipeline when SpeoControl is loaded.
+- Verify actual Redis failure/recovery, independent readers, late PHP shutdown and original ViewDataTable exclusion in an isolated original Matomo installation.
+
 ## 1.2.3 — 2026-11-07
 
 - Prepare Marketplace metadata, support links and an English FAQ for the public repository under rktsky.
