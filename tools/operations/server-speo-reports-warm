@@ -1,0 +1,44 @@
+#!/bin/bash
+# Own optional Matomo warmup entry point; run from stats.rocketsky's crontab.
+set -euo pipefail
+export LC_ALL=C
+export LANG=C
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+umask 077
+
+readonly app_dir=/var/www/stats.rocketsky.ch/web
+readonly state_dir=/var/www/stats.rocketsky.ch/tmp/speo-report-performance
+[[ ! -e /run/speo-matomo-maintenance ]] || exit 0
+
+# Native active-plugin key is Plugins[]; PluginsInstalled[] is not activation.
+if ! /usr/bin/grep -qE '^[[:space:]]*Plugins\[\][[:space:]]*=[[:space:]]*"SpeoReportPerformance"[[:space:]]*(;.*)?$' \
+    "$app_dir/config/config.ini.php" 2>/dev/null; then
+    exit 0
+fi
+
+if [[ "$(/usr/bin/id -un)" != stats.rocketsky ]]; then
+    printf '%s\n' 'Run this optional warmup as stats.rocketsky.' >&2
+    exit 1
+fi
+if [[ -L "$state_dir" ]]; then
+    printf '%s\n' 'Private warmup directory must not be a symlink.' >&2
+    exit 1
+fi
+/usr/bin/mkdir -p -- "$state_dir"
+[[ -O "$state_dir" ]]
+/usr/bin/chmod 0700 "$state_dir"
+[[ ! -L "$state_dir/cron.lock" ]]
+
+# The supervisor retains the lock; PHP and its children inherit no lock FD.
+# A busy scheduled run exits quietly rather than queuing another worker.
+if [[ "${1:-}" != --with-lock ]]; then
+    [[ "$#" -eq 0 ]] || exit 64
+    exec /usr/bin/flock -n -E 0 --close "$state_dir/cron.lock" "$0" --with-lock
+fi
+[[ "$#" -eq 1 ]] || exit 64
+[[ ! -e /run/speo-matomo-maintenance ]] || exit 0
+exec /usr/bin/nice -n 10 /usr/bin/ionice -c 2 -n 7 \
+    /usr/bin/php -d memory_limit=256M \
+    -d opcache.file_cache=/var/www/stats.rocketsky.ch/tmp/opcache-cli \
+    "$app_dir/console" speo:reports-warm \
+    --matomo-domain=https://stats.rocketsky.ch --no-interaction

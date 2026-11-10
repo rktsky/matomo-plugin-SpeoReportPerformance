@@ -1,0 +1,14 @@
+{
+  "purpose": "reference_only_not_an_installer",
+  "installedAtUtc": "2026-11-10T03:13:58Z",
+  "beforeSha256": "f577be4d70099533995f67ebe161a41a9b944def353d9dbf0f9bae58958dae0e",
+  "installedSha256": "690abc1ee2c65bac1113c3a83a4fcb122d0dce9b92f07ff0106688175b78452b",
+  "installedModeOctal": "0o755",
+  "sourceInstallPrivateReceiptSha256": "9508f87a872c488e516aac0225fbd2a37f5d2ce4a264d64a6cee3d51a1cccc3a",
+  "normalKernelProcessProofSha256": "919c93fbe60165f2e8621d91ddf43c1cac5d218fa547dc7e357548c2fadecd94",
+  "abruptKernelProcessProofSha256": "9861219cc4e03230e5eba346e0cd06b0d125c8ccd6dc54fa30d345a5e43bde48",
+  "kernelChecks": 35,
+  "nativeMatomoErasureTest": false,
+  "commandsSchedulesServicesUnchanged": true,
+  "runtimeOrReleaseExportChanged": false
+}

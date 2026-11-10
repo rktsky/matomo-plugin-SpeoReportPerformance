@@ -1,0 +1,26 @@
+--- original-owned/server-speo-reports-warm
++++ reviewed-installed/server-speo-reports-warm
+@@ -8,6 +8,7 @@
+ 
+ readonly app_dir=/var/www/stats.rocketsky.ch/web
+ readonly state_dir=/var/www/stats.rocketsky.ch/tmp/speo-report-performance
++[[ ! -e /run/speo-matomo-maintenance ]] || exit 0
+ 
+ # Native active-plugin key is Plugins[]; PluginsInstalled[] is not activation.
+ if ! /usr/bin/grep -qE '^[[:space:]]*Plugins\[\][[:space:]]*=[[:space:]]*"SpeoReportPerformance"[[:space:]]*(;.*)?$' \
+@@ -30,8 +31,13 @@
+ 
+ # The supervisor retains the lock; PHP and its children inherit no lock FD.
+ # A busy scheduled run exits quietly rather than queuing another worker.
+-exec /usr/bin/flock -n -E 0 --close "$state_dir/cron.lock" \
+-    /usr/bin/nice -n 10 /usr/bin/ionice -c 2 -n 7 \
++if [[ "${1:-}" != --with-lock ]]; then
++    [[ "$#" -eq 0 ]] || exit 64
++    exec /usr/bin/flock -n -E 0 --close "$state_dir/cron.lock" "$0" --with-lock
++fi
++[[ "$#" -eq 1 ]] || exit 64
++[[ ! -e /run/speo-matomo-maintenance ]] || exit 0
++exec /usr/bin/nice -n 10 /usr/bin/ionice -c 2 -n 7 \
+     /usr/bin/php -d memory_limit=256M \
+     -d opcache.file_cache=/var/www/stats.rocketsky.ch/tmp/opcache-cli \
+     "$app_dir/console" speo:reports-warm \
